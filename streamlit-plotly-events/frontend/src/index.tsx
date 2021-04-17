@@ -1,10 +1,10 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import CustomDataframe from "./CustomDataframe"
+import StreamlitPlotlyEventsComponent from "./StreamlitPlotlyEventsComponent"
 
 ReactDOM.render(
   <React.StrictMode>
-    <CustomDataframe />
+    <StreamlitPlotlyEventsComponent />
   </React.StrictMode>,
   document.getElementById("root")
 )

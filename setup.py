@@ -1,11 +1,11 @@
 import setuptools
 
 setuptools.setup(
-    name="streamlit-custom-component",
+    name="streamlit-plotly-events",
     version="0.0.1",
-    author="",
-    author_email="",
-    description="",
+    author="Ellie Jones",
+    author_email="ellie@altaml.com",
+    description="Plotly chart component for Streamlit that also allows for events to bubble back up to Streamlit.",
     long_description="",
     long_description_content_type="text/plain",
     url="",
@@ -14,9 +14,7 @@ setuptools.setup(
     classifiers=[],
     python_requires=">=3.6",
     install_requires=[
-        # By definition, a Custom Component depends on Streamlit.
-        # If your component has other Python dependencies, list
-        # them here.
         "streamlit >= 0.63",
+        "plotly >= 4.14.3",
     ],
 )
