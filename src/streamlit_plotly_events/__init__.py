@@ -1,5 +1,6 @@
 import os
 import streamlit.components.v1 as components
+from json import loads
 
 # Create a _RELEASE constant. We'll set this to False while we're developing
 # the component, and True when we're ready to package and distribute it.
@@ -43,14 +44,28 @@ else:
 # `declare_component` and call it done. The wrapper allows us to customize
 # our component's API: we can pre-process its input args, post-process its
 # output value, and add a docstring for users.
-def plotly_events(plot_fig):
+def plotly_events(
+    plot_fig,
+    click_event=True,
+    select_event=False,
+    hover_event=False,
+    override_height=450,
+    key=None,
+):
     """Create a new instance of "plotly_events".
 
     Parameters
     ----------
-    name: str
-        The name of the thing we're saying hello to. The component will display
-        the text "Hello, {name}!"
+    plot_fig: Plotly Figure
+        Plotly figure that we want to render in Streamlit
+    click_event: boolean, default: True
+        Watch for click events on plot and return point data when triggered
+    select_event: boolean, default: False
+        Watch for select events on plot and return point data when triggered
+    hover_event: boolean, default: False
+        Watch for hover events on plot and return point data when triggered
+    override_height: int, default: 450
+        Integer to override component height.  Defaults to 450 (px)
     key: str or None
         An optional key that uniquely identifies this component. If this is
         None, and the component's arguments are changed, the component will
@@ -58,44 +73,69 @@ def plotly_events(plot_fig):
 
     Returns
     -------
-    int
-        The number of times the component's "Click Me" button has been clicked.
-        (This is the value passed to `Streamlit.setComponentValue` on the
-        frontend.)
+    list of dict
+        List of dictionaries containing point details (in case multiple overlapping
+        points have been clicked).
+
+        Details can be found here:
+            https://plotly.com/javascript/plotlyjs-events/#event-data
+
+        Format of dict:
+            {
+                x: int (x value of point),
+                y: int (y value of point),
+                curveNumber: (index of curve),
+                pointNumber: (index of selected point),
+                pointIndex: (index of selected point)
+            }
 
     """
-    # Call through to our private component function. Arguments we pass here
-    # will be sent to the frontend, where they'll be available in an "args"
-    # dictionary.
-    #
-    # "default" is a special argument that specifies the initial return
-    # value of the component before the user has interacted with it.
-    component_value = _component_func(plot_obj=fig.to_json(), default=False)
+    # kwargs will be exposed to frontend in "args"
+    component_value = _component_func(
+        plot_obj=plot_fig.to_json(),
+        override_height=override_height,
+        key=key,
+        click_event=click_event,
+        select_event=select_event,
+        hover_event=hover_event,
+        default="[]",  # Default return empty JSON list
+    )
 
-    # We could modify the value returned from the component if we wanted.
-    # There's no need to do this in our simple example - but it's an option.
-    return component_value
+    # Parse component_value since it's JSON and return to Streamlit
+    return loads(component_value)
 
 
 # Add some test code to play with the component while it's in development.
 # During development, we can run this just as we would any other Streamlit
-# app: `$ streamlit run my_component/__init__.py`
+# app: `$ streamlit run src/streamlit_plotly_events/__init__.py`
 if not _RELEASE:
     import streamlit as st
     import plotly.express as px
-    st.subheader("Component with variable args")
 
-    # Create a second instance of our component whose `name` arg will vary
-    # based on a text_input widget.
-    #
-    # We use the special "key" argument to assign a fixed identity to this
-    # component instance. By default, when a component's arguments change,
-    # it is considered a new instance and will be re-mounted on the frontend
-    # and lose its current state. In this case, we want to vary the component's
-    # "name" argument without having it get recreated.
-    name_input = st.text_input("Enter a name", value="Streamlit")
+    st.subheader("Plotly Line Chart")
     fig = px.line(x=[0, 1, 2, 3], y=[0, 1, 2, 3])
     plot_name_holder = st.empty()
-    clickedPoint = plotly_events(fig)
-    plot_name_holder.write(f"Selected Point: {clickedPoint}")
-    # st.markdown("You've clicked %s times!" % int(num_clicks))
+    clickedPoint = plotly_events(fig, key="line")
+    plot_name_holder.write(f"Clicked Point: {clickedPoint}")
+
+    st.subheader("Plotly Bar Chart")
+    fig2 = px.bar(x=[0, 1, 2, 3], y=[0, 1, 2, 3])
+    plot_name_holder2 = st.empty()
+    clickedPoint2 = plotly_events(fig2, key="bar")
+    plot_name_holder2.write(f"Clicked Point: {clickedPoint2}")
+
+    st.subheader("# Plotly Select Event")
+    fig3 = px.bar(x=[0, 1, 2, 3], y=[0, 1, 2, 3])
+    plot_name_holder3 = st.empty()
+    clickedPoint3 = plotly_events(
+        fig3, key="select", click_event=False, select_event=True
+    )
+    plot_name_holder3.write(f"Selected Point: {clickedPoint3}")
+
+    st.subheader("# Plotly Hover Event")
+    fig4 = px.bar(x=[0, 1, 2, 3], y=[0, 1, 2, 3])
+    plot_name_holder4 = st.empty()
+    clickedPoint4 = plotly_events(
+        fig4, key="hover", click_event=False, hover_event=True
+    )
+    plot_name_holder4.write(f"Hovered Point: {clickedPoint4}")
