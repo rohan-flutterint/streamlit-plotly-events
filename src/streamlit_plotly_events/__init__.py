@@ -50,6 +50,7 @@ def plotly_events(
     select_event=False,
     hover_event=False,
     override_height=450,
+    override_width="100%",
     key=None,
 ):
     """Create a new instance of "plotly_events".
@@ -66,6 +67,8 @@ def plotly_events(
         Watch for hover events on plot and return point data when triggered
     override_height: int, default: 450
         Integer to override component height.  Defaults to 450 (px)
+    override_width: string, default: '100%'
+        String (or integer) to override width.  Defaults to 100% (whole width of iframe)
     key: str or None
         An optional key that uniquely identifies this component. If this is
         None, and the component's arguments are changed, the component will
@@ -94,6 +97,7 @@ def plotly_events(
     component_value = _component_func(
         plot_obj=plot_fig.to_json(),
         override_height=override_height,
+        override_width=override_width,
         key=key,
         click_event=click_event,
         select_event=select_event,
@@ -112,17 +116,22 @@ if not _RELEASE:
     import streamlit as st
     import plotly.express as px
 
+    st.set_page_config(layout="wide")
+
     st.subheader("Plotly Line Chart")
     fig = px.line(x=[0, 1, 2, 3], y=[0, 1, 2, 3])
     plot_name_holder = st.empty()
     clickedPoint = plotly_events(fig, key="line")
     plot_name_holder.write(f"Clicked Point: {clickedPoint}")
 
-    st.subheader("Plotly Bar Chart")
-    fig2 = px.bar(x=[0, 1, 2, 3], y=[0, 1, 2, 3])
-    plot_name_holder2 = st.empty()
-    clickedPoint2 = plotly_events(fig2, key="bar")
-    plot_name_holder2.write(f"Clicked Point: {clickedPoint2}")
+    # Here we add columns to check auto-resize/etc
+    st.subheader("Plotly Bar Chart (With columns)")
+    _, c2, _ = st.beta_columns((1, 6, 1))
+    with c2:
+        fig2 = px.bar(x=[0, 1, 2, 3], y=[0, 1, 2, 3])
+        plot_name_holder2 = st.empty()
+        clickedPoint2 = plotly_events(fig2, key="bar")
+        plot_name_holder2.write(f"Clicked Point: {clickedPoint2}")
 
     st.subheader("# Plotly Select Event")
     fig3 = px.bar(x=[0, 1, 2, 3], y=[0, 1, 2, 3])

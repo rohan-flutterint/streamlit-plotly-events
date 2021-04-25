@@ -11,6 +11,7 @@ class StreamlitPlotlyEventsComponent extends StreamlitComponentBase {
     // Pull Plotly object from args and parse
     const plot_obj = JSON.parse(this.props.args["plot_obj"]);
     const override_height = this.props.args["override_height"];
+    const override_width = this.props.args["override_width"];
 
     // Event booleans
     const click_event = this.props.args["click_event"];
@@ -19,18 +20,17 @@ class StreamlitPlotlyEventsComponent extends StreamlitComponentBase {
 
     Streamlit.setFrameHeight(override_height);
     return (
-      <div
-       style={{"height": override_height}}
-       className="stPlotlyChart"
-      >
-        <Plot
-          data={plot_obj.data}
-          layout={plot_obj.layout}
-          onClick={click_event ? this.plotlyEventHandler : function(){}}
-          onSelected={select_event ? this.plotlyEventHandler : function(){}}
-          onHover={hover_event ? this.plotlyEventHandler : function(){}}
-        />
-      </div>
+      <Plot
+        data={plot_obj.data}
+        layout={plot_obj.layout}
+        config={plot_obj.config}
+        frames={plot_obj.frames}
+        onClick={click_event ? this.plotlyEventHandler : function(){}}
+        onSelected={select_event ? this.plotlyEventHandler : function(){}}
+        onHover={hover_event ? this.plotlyEventHandler : function(){}}
+        style={{width: override_width, height: override_height}}
+        className="stPlotlyChart"
+      />
     )
   }
 
