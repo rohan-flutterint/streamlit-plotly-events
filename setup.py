@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="streamlit-plotly-events",
-    version="0.0.5",
+    version="0.0.6",
     author="Ellie Jones",
     author_email="ellie@altaml.com",
     description="Plotly chart component for Streamlit that also allows for events to bubble back up to Streamlit.",
